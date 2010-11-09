@@ -1,0 +1,53 @@
+Connecting to a host
+====================
+
+  # reach user@host
+
+
+Specifying a connection chain
+=============================
+
+  # reach user@host1 user@host2 user@host3
+
+Which would connect from user@host1 to user@host2 to user@host3
+
+
+Looking up a connection path from a connection source
+=====================================================
+
+  # reach user@host3
+
+While having a .reachhosts containing
+ <reach>
+  <hosts>
+   <ssh name='host1' port='22' user='john' password='ask' scope='lan1' visibility='all'/>
+   <ssh name='host2' port='22' user='john' password='ask' scope='lan2' visibility='lan1,lan2'/>
+   <ssh name='host3' port='22' user='john' password='ask' scope='lan2'/>
+  </hosts>
+ </reach>
+
+Would connect from user@host1 to user@host2 to user@host3.
+
+
+Showing connection path
+=======================
+
+  # reach --path user@host3
+
+Displays:
+    I would:
+        ssh user@host1
+        ssh user@host2
+        ssh user@host3
+        drop to interactive shell
+
+
+Reach escape shell
+==================
+
+While connected <c-r><c-:>
+  :ltunnel 10000:vnchost:5900
+  :help
+  :sock 3333
+
+
