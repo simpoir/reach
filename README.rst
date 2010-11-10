@@ -9,11 +9,9 @@ Nevermind, I'm using Reach". Yes it is that cool.
 REQUIREMENTS
 ============
 
-One of:
  * python 2.6
-   * argparse
-
- * python 3
+ ** argparse
+ * pexpect
 
 ssh client
 
