@@ -1,3 +1,4 @@
+from reach import sshconnector
 
 class Channel(object):
     """ Represents a channel, I.E. a IO stream to a shell or something
@@ -6,10 +7,12 @@ class Channel(object):
     pass
 
     def chain_connect(self, chain):
-        # TODO
-        pass
+        conn = sshconnector.SshConnector()
+
+        for link in chain:
+            conn.connect(link, self)
 
     def run(self):
-        # TODO
+        # TODO pass data between stdin -> channel, channel -> stdout
         return False
 

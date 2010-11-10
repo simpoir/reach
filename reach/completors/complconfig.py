@@ -9,5 +9,5 @@ class ComplConfig(completor.Completor):
         # TODO
         raise NotImplementedError()
 
-completor.registry.update('config', ComplConfig)
+completor.registry['config'] = ComplConfig()
 

@@ -27,7 +27,10 @@ class Completor:
         """
         raise NotImplementedError()
 
-default_chain = ('config', 'interactive')
+default_chain = (
+    # 'config', # not yet implemented
+    'interactive',
+)
 
 registry = {}
 
@@ -36,8 +39,8 @@ def load_completors():
 
         Completors are expected to insert themselves to the registry.
     """
-    registry.clear()
-    complnames = os.listdir(os.path.dirname(__file__) + 'completors')
+    reach_dir = os.path.dirname(__file__)
+    complnames = os.listdir(os.path.join(reach_dir, 'completors'))
     for complname in complnames:
         if (not complname.endswith('.py')) or (complname[0] == '_'):
             continue
@@ -45,11 +48,15 @@ def load_completors():
         compl_mod = __import__('reach.completors.'+compl_mod_name, fromlist=[True])
 
 def init_completors(settings):
+    # be sure to initialize completor registry
+    if not len(registry):
+        load_completors()
+
     chain_names = default_chain + settings.get_completor_chain()
 
     chain = []
     for completor_name in chain_names:
-        chain.append(registry[completor_name]())
+        chain.append(registry[completor_name])
 
     return chain
 
