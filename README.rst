@@ -10,10 +10,12 @@ REQUIREMENTS
 ============
 
  * python 2.6
- ** argparse
+
+   * argparse
+
  * pexpect
 
-ssh client
+ * ssh client
 
 
 USAGE
