@@ -12,12 +12,15 @@ class ComplInteractive(completor.Completor):
 
         # FIXME I don't see a backend without a hostname, but I don't like
         # direct depenencies to host attributes.
-        host_name = host.get('hostname', 'unknown host name')
+        host_name = host.get('hostname', 'unknown host')
+        user_name = host.get('username', 'unknown user')
 
         for req_name in requested:
             if (not host.has_key(req_name)) or (host.get(req_name) == None):
                 if req_name == 'password':
-                    val = getpass.getpass("'%s' %s: " % (host_name, req_name))
+                    val = getpass.getpass("'%s@%s' %s: " % (user_name,
+                                                            host_name,
+                                                            req_name))
                 else:
                     val = raw_input("'%s' %s: " % (host_name, req_name))
                 host[req_name] = val

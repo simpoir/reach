@@ -4,6 +4,9 @@ from reach import opts, completor, sshconnector
 from reach.settings import Settings
 from reach.channel import Channel
 
+import tty, termios
+import sys
+
 def create_chain(completors, host_chain, visibility):
     """ Complete and lookup host recursively until it either:
         - gets a host without scope (public host)
@@ -41,7 +44,8 @@ def create_chain(completors, host_chain, visibility):
             compl.fill(host=chain_tip, requested=reqs)
 
         # can we contact this host?
-        if (not chain_tip.has_key('scope')) or (chain_tip['scope'] in visibility):
+        if (not chain_tip.has_key('scope')) \
+           or (chain_tip['scope'] in visibility):
             break
 
         # then do the chain lookup from completion info
@@ -77,9 +81,15 @@ def main():
 
     chan = Channel()
     chan.chain_connect(chain)
-    while chan.run():
-        # run Forrest run
-        pass
+
+    old_term_cfg = termios.tcgetattr(sys.stdin.fileno())
+    try:
+        tty.setraw(sys.stdin.fileno())
+        while chan.run():
+            # run Forrest run
+            pass
+    finally:
+        termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, old_term_cfg)
 
 if __name__ == "__main__":
     main()
