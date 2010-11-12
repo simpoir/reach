@@ -1,6 +1,6 @@
 from reach import completor
 
-import pexpect
+import paramiko
 import os
 
 class SshConnector(object):
@@ -29,22 +29,10 @@ class SshConnector(object):
         #print("i would connect to %(hostname)s on port %(port)s with user %(username)s and password %(password)s"%host)
         #raise NotImplementedError()
 
-        chan = channel.get_io()
-        chan.timeout = 2
-        chan.write('ssh -o ControlPath=none -p %(port)s %(username)s@%(hostname)s\n'%host)
-        chan.expect('assword')
-        chan.write(host['password']+'\n')
-
-        chan.write('echo REACH ROCKS')
-        chan.expect('REACH ROCKS') # flush untill the echo
-        chan.write('\n')
-
-        try:
-            chan.expect('REACH ROCKS')
-        except pexpect.TIMEOUT, e:
-            # TODO get cause
-            print('connection to %(username)s@%(hostname)s failed'%host)
-            raise e
+        chan = channel.get_chan(host)
+        transport = paramiko.Transport(chan)
+        transport.connect(username=host['username'],password=host['password'])
+        channel.set_chan(transport)
         print('succeeded connnecting to %s'%host['hostname'])
 
     def get_required(self, host):
