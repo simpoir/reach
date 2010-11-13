@@ -47,7 +47,6 @@ class Channel(object):
             sys.stdout.write(from_chan)
             sys.stdout.flush()
 
-        sys.stdin.flush()
         if len(select.select([sys.stdin], [], [], 0.5)[0]) > 0:
             from_console = sys.stdin.read(1)
 
