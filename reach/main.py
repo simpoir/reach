@@ -83,10 +83,12 @@ def create_chain(completors, host_chain, visibility):
 
     return new_chain
 
+
 def discover_visibility():
     # TODO I have no idea how to do that yet.
     # Just return an empty tuple for the global scoped visibility.
     return tuple()
+
 
 def main():
     completors = completor.init_completors(Settings.load())
@@ -96,6 +98,7 @@ def main():
 
     chan = Channel()
     chan.chain_connect(chain)
+    chan.get_interactive_chan()
 
     old_term_cfg = termios.tcgetattr(sys.stdin.fileno())
     try:

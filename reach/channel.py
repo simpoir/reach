@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from reach import sshconnector
+from reach import sshconnector, term
 
 import sys
 import select
@@ -29,6 +29,8 @@ class Channel(object):
         super(Channel, self).__init__()
 
         self.__chan = None
+        self.__ichan = None
+
 
     def get_chan(self, host):
         if not self.__chan:
@@ -41,36 +43,60 @@ class Channel(object):
                 (host['hostname'], int(host['port'])),
                 ('0.0.0.0', 9090))
 
+
     def set_chan(self, newchan):
         self.__chan = newchan
+
 
     def chain_connect(self, chain):
         conn = sshconnector.SshConnector()
         for link in chain:
             conn.connect(link, self)
 
-        # FIXME keep chan and save interacivechan
-        self.__chan = self.__chan.open_session()
-        self.__chan.get_pty('vt100', 80, 24)
-        self.__chan.invoke_shell()
+
+    def get_interactive_chan(self):
+        """ Returns an interactive (shell) channel.
+
+        A new channel is established if none exists.
+        """
+        if self.__ichan:
+            return self.__ichan
+
+        # else establish and create interactive channel
+        term_size = term.get_size()
+        self.__ichan = self.__chan.open_session()
+        self.__ichan.get_pty('vt100', height=term_size[0], width=term_size[1])
+        self.__ichan.invoke_shell()
 
 
     def run(self):
         """ Pass data between stdin -> channel, channel -> stdout
         Returns True if channel is still up, False if channel is broken.
         """
-        if len(select.select([self.__chan], [], [], 0.2)[0]) > 0:
-            from_chan = self.__chan.recv(1024)
-            sys.stdout.write(from_chan)
-            sys.stdout.flush()
+        if term.has_resized():
+            term_size = term.get_size()
+            self.__ichan.resize_pty(term_size[1], term_size[0])
 
-        if len(select.select([sys.stdin], [], [], 0.5)[0]) > 0:
-            from_console = sys.stdin.read(1)
+        try:
+            if len(select.select([self.__ichan], [], [], 0.2)[0]) > 0:
+                from_chan = self.__ichan.recv(1024)
+                sys.stdout.write(from_chan)
+                sys.stdout.flush()
 
-            # catch EOF
-            if not from_console or from_console == '\x04':
-                return False
-            self.__chan.send(from_console)
+            if len(select.select([sys.stdin], [], [], 0.5)[0]) > 0:
+                from_console = sys.stdin.read(1)
+
+                # catch EOF
+                if not from_console or from_console == '\x04':
+                    return False
+                self.__ichan.send(from_console)
+
+                # TODO catch escape code
+        except select.error:
+            # Occurs when signal is received while select (E.G. term resize).
+            # This is ok. Just continue as if nothing appened.
+            # We'll resume select on next run().
+            pass
 
         # TODO detect conn end
         return True
