@@ -13,9 +13,7 @@ REQUIREMENTS
 
    * argparse
 
- * pexpect
-
- * ssh client
+   * paramiko
 
 
 USAGE
