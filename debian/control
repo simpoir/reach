@@ -1,0 +1,16 @@
+Source: reach
+Section: misc
+Priority: extra
+Maintainer: Simon Poirier <simpoir@gmail.com>
+Build-Depends: cdbs, debhelper (>= 7), python (>= 2.6)
+XS-PYTHON-VERSION: >= 2.6
+Standards-Version: 3.8.4
+Homepage: http://github.com/simpoir/reach
+
+Package: reach
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, paramiko
+Description: ssh connection tool
+ Reach is a simple connection tool supporting ssh with features like
+ chaining connection and completion connection info from various sources.
+
