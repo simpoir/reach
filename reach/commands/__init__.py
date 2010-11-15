@@ -15,16 +15,20 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import readline
+from reach import term
+
 
 registry = {}
 
-def register_command(name, command):
+def register_command(name, help_line, command):
     """ Load the named command to the registry.
 
     name is used for binding to a commandline argument.
+    help_line command usage.
     command is a callable which will be executed.
     """
-    registry[name] = command
+    registry[name] = (help_line, command)
 
 
 def load_cmds():
@@ -43,7 +47,56 @@ def load_cmds():
 load_cmds()
 
 
+def execute_interactive():
+    """ Runs the command mode once, reading the standard input for a command
+    and executing it. Will return execution once a command has been executed
+    or if an invalid command was passed.
+    """
+    old_completer = readline.get_completer()
+    readline.set_completer(__readline_completer)
+    readline.parse_and_bind('tab: complete')
+
+    rows, cols = term.get_size()
+    print('\n'*rows)
+    term.set_pos(0, 0)
+
+    # default raw mode is not readline friendly.
+    # restore after saving display, for restoring is destructive
+    term.restore_tty()
+
+    try:
+        cmd_name = raw_input('REACH:')
+    except EOFError:
+        return
+
+    if cmd_name in registry:
+        registry[cmd_name][1](cmd_name.split(' '))
+    term.restore_cursor()
+
+    # return to raw_mode
+    term.set_raw()
+    readline.set_completer(old_completer)
+
+    # FIXME this is the simplest way I found to redraw properly
+    # send ctrl-l (redraw to the shell, assuming a shell is running)
+    from reach import channel
+    channel.Channel.get_instance().get_interactive_chan().send('')
+
+
 def is_ninja():
     """ This function serves no purpose. The ninja is a lie. """
     pass
+
+
+def __readline_completer(text, state):
+    """ Callback for completing using readline.
+    """
+    i = 0
+    for cmd_name in registry:
+        if cmd_name.startswith(text):
+            if i == state:
+                return cmd_name
+            i += 1
+    return None
+
 

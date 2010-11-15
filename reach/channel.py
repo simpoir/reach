@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from reach import sshconnector, term
+from reach import sshconnector, term, commands
 
 import sys
 import select
@@ -30,6 +30,15 @@ class Channel(object):
 
         self.__chan = None
         self.__ichan = None
+        self.__prev_char = None
+
+
+    _instance = None
+    @classmethod
+    def get_instance(cls):
+        if not cls._instance:
+            cls._instance = cls()
+        return cls._instance
 
 
     def get_chan(self, host):
@@ -86,18 +95,36 @@ class Channel(object):
             if len(select.select([sys.stdin], [], [], 0.5)[0]) > 0:
                 from_console = sys.stdin.read(1)
 
-                # catch EOF
-                if not from_console or from_console == '\x04':
-                    return False
-                self.__ichan.send(from_console)
+                # catch command escape
+                if from_console == '\r':
+                    self.__prev_char = '\n'
+                    self.__ichan.send(from_console)
 
-                # TODO catch escape code
+                elif from_console == '~':
+                    if self.__prev_char == '\n':
+                        self.__prev_char = '~'
+                    else:
+                        self.__prev_char = None
+                        self.__ichan.send(from_console)
+                elif self.__prev_char == '~':
+                    self.__prev_char = None
+                    if from_console == '.':
+                        commands.execute_interactive()
+                    else:
+                        self.__ichan.send('~'+from_console)
+                else:
+                    self.__prev_char = None
+                    self.__ichan.send(from_console)
+
         except select.error:
             # Occurs when signal is received while select (E.G. term resize).
             # This is ok. Just continue as if nothing appened.
             # We'll resume select on next run().
             pass
 
-        # TODO detect conn end
+        # Check if remote interactive channel has closed (shell exited).
+        if self.__ichan.exit_status_ready():
+            return False
+
         return True
 

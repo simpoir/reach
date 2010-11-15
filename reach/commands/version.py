@@ -17,6 +17,7 @@
 from reach import VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION
 from reach.commands import register_command
 
+import sys
 
 toothbrush = '''
    .
@@ -31,18 +32,22 @@ many hosts in order to access a system. It has a connection completion
 API to be able to get and resolve a graph of hosts.
 It also supports on-the-fly tunnelling.
 
-Reach is also a trademark for an electric toothbrush, but this has obviously
-nothing to do with this code.
+Reach is also an electric toothbrush, but this has obviously nothing to do with
+this tool.
 
-Version 2 is a complete rewrite of a really nice tool.
+Version 2 is a complete rewrite of another really nice tool.
 '''
 
-def version_cmd(args):
+def version_cmd(*args):
     print(toothbrush)
     print("Version %d.%d.%d" % (VERSION_MAJOR, VERSION_MINOR,
                                 VERSION_REVISION))
-    print()
+    print('')
     print(description)
+    print('[return]')
+    sys.stdin.readline()
 
-register_command("version", version_cmd)
+help_line = 'Show version information.'
+
+register_command("version", help_line, version_cmd)
 

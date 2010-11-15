@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import tty
 import termios
 from fcntl import ioctl
 import struct
@@ -55,4 +56,40 @@ def __sig_resize_handler(*args):
     global __has_resized
     __has_resized = True
 signal.signal(signal.SIGWINCH, __sig_resize_handler)
+
+
+# Save terminal state
+__term_state = termios.tcgetattr(sys.stdin.fileno())
+
+def set_raw():
+    termios.tcgetattr(sys.stdin.fileno())
+    tty.setraw(sys.stdin.fileno())
+
+
+def restore_tty():
+    termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, __term_state)
+
+
+def save_cursor():
+    """ save the cursor position.
+    """
+    sys.stdout.write('\x1b7')
+    sys.stdout.flush()
+
+
+def restore_cursor():
+    """ restore the cursor position of last save_cursor.
+    Calling restore_cursor() without previous call to save_cursor() will lead
+    to an unknown state.
+    """
+    sys.stdout.write('\x1b8')
+    sys.stdout.flush()
+
+
+def set_pos(row, column):
+    """ Set the cursor position.
+    """
+    sys.stdout.write('\x1b[%d;%dH' % (row, column))
+    sys.stdout.flush()
+
 

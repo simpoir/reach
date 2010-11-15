@@ -15,12 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from reach import opts, completor, sshconnector
+from reach import opts, completor, sshconnector, term
 from reach.settings import Settings
 from reach.channel import Channel
-
-import tty, termios
-import sys
 
 def create_chain(completors, host_chain, visibility):
     """ Complete and lookup host recursively until it either:
@@ -96,18 +93,17 @@ def main():
     current_visibility = discover_visibility()
     chain = create_chain(completors, partial_host_chain, current_visibility)
 
-    chan = Channel()
+    chan = Channel.get_instance()
     chan.chain_connect(chain)
     chan.get_interactive_chan()
 
-    old_term_cfg = termios.tcgetattr(sys.stdin.fileno())
+    term.set_raw()
     try:
-        tty.setraw(sys.stdin.fileno())
         while chan.run():
             # run Forrest run
             pass
     finally:
-        termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, old_term_cfg)
+        term.restore_tty()
 
 if __name__ == "__main__":
     main()
