@@ -87,12 +87,13 @@ class Channel(object):
             self.__ichan.resize_pty(term_size[1], term_size[0])
 
         try:
-            if len(select.select([self.__ichan], [], [], 0.2)[0]) > 0:
+            ready = select.select([self.__ichan, sys.stdin], [], [], 0.2)[0]
+            if self.__ichan in ready:
                 from_chan = self.__ichan.recv(1024)
                 sys.stdout.write(from_chan)
                 sys.stdout.flush()
 
-            if len(select.select([sys.stdin], [], [], 0.5)[0]) > 0:
+            if sys.stdin in ready:
                 from_console = sys.stdin.read(1)
 
                 # catch command escape
