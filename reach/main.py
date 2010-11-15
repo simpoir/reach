@@ -69,11 +69,11 @@ def create_chain(completors, host_chain, visibility):
             # Dijkstra was a fun/bad idea.
             chain_tip = dict(tip_choices[0])
 
-    for hop in reversed(new_chain):
+    for hop in new_chain:
         # do the completion, in connection order
-        conn.get_defaults_completor().fill(host=chain_tip, requested=reqs)
+        conn.get_defaults_completor().fill(host=hop, requested=reqs)
         for compl in completors:
-            compl.fill(host=chain_tip, requested=reqs)
+            compl.fill(host=hop, requested=reqs)
 
     return new_chain
 
