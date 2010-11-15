@@ -68,6 +68,8 @@ def execute_interactive():
         cmd_name = raw_input('REACH:')
     except EOFError:
         return
+    except KeyboardInterrupt:
+        return
 
     if cmd_name in registry:
         registry[cmd_name][1](cmd_name.split(' '))
