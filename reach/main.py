@@ -39,21 +39,12 @@ def create_chain(completors, host_chain, visibility):
     # fill current chain, for we need connection info
     for chain_link in host_chain[1:]:
         new_link = dict(chain_link)
-        reqs = conn.get_required(new_link)
-        conn.get_defaults_completor().fill(host=new_link, requested=reqs)
-        for compl in completors:
-            compl.fill(host=new_link, requested=reqs)
         new_chain.insert(0, new_link)
 
     chain_tip = dict(host_chain[0])
     while True:
         new_chain.insert(0, chain_tip)
         reqs = conn.get_required(chain_tip)
-
-        # do the completion
-        conn.get_defaults_completor().fill(host=chain_tip, requested=reqs)
-        for compl in completors:
-            compl.fill(host=chain_tip, requested=reqs)
 
         # can we contact this host?
         if (not chain_tip.has_key('scope')) \
@@ -77,6 +68,12 @@ def create_chain(completors, host_chain, visibility):
             # save us a few lookups and just use the first choice.
             # Dijkstra was a fun/bad idea.
             chain_tip = dict(tip_choices[0])
+
+    for hop in reversed(new_chain):
+        # do the completion, in connection order
+        conn.get_defaults_completor().fill(host=chain_tip, requested=reqs)
+        for compl in completors:
+            compl.fill(host=chain_tip, requested=reqs)
 
     return new_chain
 
