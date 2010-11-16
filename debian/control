@@ -9,7 +9,7 @@ Homepage: http://github.com/simpoir/reach
 
 Package: reach
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, paramiko
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, python-paramiko
 Description: ssh connection tool
  Reach is a simple connection tool supporting ssh with features like
  chaining connection and completion connection info from various sources.

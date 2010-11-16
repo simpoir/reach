@@ -1,8 +1,9 @@
-reach (2.0.2-ubuntu1) lucid; urgency=low
+reach (2.0.2-ubuntu2) lucid; urgency=low
 
   * fix lag issue.
+  * fix paramiko dependency.
 
- -- Simon Poirier <spoirier@cdt204.revolutionlinux.com>  Mon, 15 Nov 2010 13:00:30 -0500
+ -- Simon Poirier <spoirier@cdt204.revolutionlinux.com>  Tue, 16 Nov 2010 14:40:31 -0500
 
 reach (2.0.1-1) lucid; urgency=low
 
