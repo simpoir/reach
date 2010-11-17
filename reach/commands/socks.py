@@ -79,15 +79,26 @@ class SocksHandler(BaseRequestHandler):
         if s_ver == 0x04 and s_cmd == 0x01:
             # v4 connect
 
+            # convert to string ip
+            dst_ip = '.'.join([str(ord(x)) for x in s_ip])
+
             # receive null terminated user id
             user_id = ''
             c = self.request.recv(1)
             while c != '\x00':
+                user_id += c
                 c = self.request.recv(1)
             del c
 
-            # convert to string ip
-            dst_ip = '.'.join([str(ord(x)) for x in s_ip])
+            if s_ip.startswith('\x00\x00\x00') and s_ip[3] != '\x00':
+                # v4a extension
+                dst_ip = ''
+                c = self.request.recv(1)
+                while c != '\x00':
+                    dst_ip += c
+                    c = self.request.recv(1)
+                del c
+
             chan = Channel.get_instance().get_chan(dict(
                 hostname=dst_ip, port=s_port))
             self.request.send(self.socks4header.pack(0, 0x5a, 0, 'moo!'))
