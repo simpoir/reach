@@ -1,7 +1,8 @@
-reach (2.0.2-ubuntu2) lucid; urgency=low
+reach (2.0.2-ubuntu3) lucid; urgency=low
 
   * fix lag issue.
   * fix paramiko dependency.
+  * fix nonblock stdin issue.
 
  -- Simon Poirier <spoirier@cdt204.revolutionlinux.com>  Tue, 16 Nov 2010 14:40:31 -0500
 

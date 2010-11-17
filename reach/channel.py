@@ -18,6 +18,7 @@
 from reach import sshconnector, term, commands
 
 import sys
+import os
 import select
 import socket
 
@@ -89,12 +90,14 @@ class Channel(object):
         try:
             ready = select.select([self.__ichan, sys.stdin], [], [], 0.2)[0]
             if self.__ichan in ready:
-                from_chan = self.__ichan.recv(1024)
+                from_chan = self.__ichan.recv(512)
                 sys.stdout.write(from_chan)
                 sys.stdout.flush()
 
             if sys.stdin in ready:
-                from_console = sys.stdin.read(1)
+                # use raw read for nonblock.
+                # see http://bugs.python.org/issue1175#msg56041
+                from_console = os.read(sys.stdin.fileno(), 512)
 
                 # catch command escape
                 if from_console == '\r':
