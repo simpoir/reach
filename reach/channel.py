@@ -75,7 +75,8 @@ class Channel(object):
         # else establish and create interactive channel
         term_size = term.get_size()
         self.__ichan = self.__chan.open_session()
-        self.__ichan.get_pty('vt100', height=term_size[0], width=term_size[1])
+        self.__ichan.get_pty(os.environ.get('TERM', 'vt100'),
+                             height=term_size[0], width=term_size[1])
         self.__ichan.invoke_shell()
 
 

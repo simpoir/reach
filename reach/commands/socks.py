@@ -68,16 +68,26 @@ class SocksServer(ThreadingMixIn, TCPServer):
     pass
 
 class SocksHandler(BaseRequestHandler):
-    socks4header = struct.Struct('!BBH4s')
+    socks4header = struct.Struct('!H4s')
+    socks4response = struct.Struct('!BBH4s')
+    socks5response = struct.Struct('!BBBB')
 
     def handle(self):
         from reach.channel import Channel
-        data = self.request.recv(self.socks4header.size)
-        s_ver, s_cmd, s_port, s_ip = self.socks4header.unpack(data)
+        s_ver = ord(self.request.recv(1))
 
         chan = None
-        if s_ver == 0x04 and s_cmd == 0x01:
+        if s_ver == 0x04:
             # v4 connect
+            s_cmd = ord(self.request.recv(1))
+            if s_cmd != 0x01:
+                # TODO support bind command
+                # return V4 error
+                self.request.send(self.socks4response.pack(0, 0x5b, 0, 'oops'))
+                return
+
+            data = self.request.recv(self.socks4header.size)
+            s_port, s_ip = self.socks4header.unpack(data)
 
             # convert to string ip
             dst_ip = '.'.join([str(ord(x)) for x in s_ip])
@@ -101,11 +111,61 @@ class SocksHandler(BaseRequestHandler):
 
             chan = Channel.get_instance().get_chan(dict(
                 hostname=dst_ip, port=s_port))
-            self.request.send(self.socks4header.pack(0, 0x5a, 0, 'moo!'))
+            self.request.send(self.socks4response.pack(0, 0x5a, 0, 'moo!'))
+        elif s_ver == 0x05:
+            # socks v5
+            nb_auth = self.request.recv(1)
+            auths = []
+            for i in xrange(ord(nb_auth)):
+                auths.append(ord(self.request.recv(1)))
+            if 0x00 in auths:
+                # supports no-auth connections
+                # return choice of no-auth
+                self.request.send('\x05\x00')
+            else:
+                self.request.send('\x05\xFF')
+                return
+
+            # get request
+            s_ver = self.request.recv(1)
+            if s_ver != '\x05': 
+                print 'expected v5, got '+repr(s_ver)
+            s_cmd = self.request.recv(1)
+            if s_cmd != '\x01': pass # TODO bind
+            s_nul = self.request.recv(1)
+            s_add = self.request.recv(1)
+            s_ip = ''
+            dst_ip = ''
+            if s_add == '\x01':
+                # ipv4
+                s_ip = self.request.recv(4)
+                # convert to string ip
+                dst_ip = '.'.join([str(ord(x)) for x in s_ip])
+            elif s_add == '\x03':
+                # domain name
+                l = ord(self.request.recv(1))
+                dst_ip = self.request.recv(l)
+                del l
+                s_ip = dst_ip
+            elif s_add == '\x04':
+                # ipv6
+                s_ip = self.request.recv(16)
+                # convert to string ip
+                dst_ip = '.'.join([str(ord(x)) for x in s_ip])
+            else:
+                return # malformed
+            s_prt = struct.unpack('!H', self.request.recv(2))[0]
+
+            chan = Channel.get_instance().get_chan(dict(
+                hostname=dst_ip, port=s_prt))
+            # request granted
+            self.request.send(
+                self.socks5response.pack(0x05, 0x00, 0x00, ord(s_add)))
+            self.request.send(s_ip)
+            self.request.send(struct.pack('!H', s_prt))
         else:
             # V4 error
-            self.request.send(self.socks4header.pack(0, 0x5b, 0, 'oops'))
-            print 'unsupported socks connection'
+            self.request.send(self.socks4response.pack(0, 0x5b, 0, 'oops'))
             return
 
         # TODO relay data
