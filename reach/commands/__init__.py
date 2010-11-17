@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import sys
 import readline
 from reach import term
 
@@ -64,15 +65,15 @@ def execute_interactive():
     # restore after saving display, for restoring is destructive
     term.restore_tty()
 
-    try:
-        cmd_name = raw_input('REACH:')
-    except EOFError:
-        return
-    except KeyboardInterrupt:
-        return
+    cmd_name = raw_input('REACH:')
 
-    if cmd_name in registry:
-        registry[cmd_name][1](cmd_name.split(' '))
+    cmd_args = [x for x in cmd_name.split(' ') if x != '']
+    if cmd_args[0] in registry:
+        registry[cmd_args[0]][1](cmd_args)
+    else:
+        sys.stdout.write('No such command')
+        sys.stdout.write('[RETURN]')
+        os.read(sys.stdin.fileno(), 1)
     term.restore_cursor()
 
     # return to raw_mode
