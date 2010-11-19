@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from reach import sshconnector, term, commands
+from reach import sshconnector, term
 
 import sys
 import os
@@ -52,6 +52,10 @@ class Channel(object):
                 'direct-tcpip',
                 (host['hostname'], int(host['port'])),
                 ('0.0.0.0', 9090))
+
+
+    def get_transport(self):
+        return self.__chan
 
 
     def set_chan(self, newchan):
@@ -114,6 +118,7 @@ class Channel(object):
                 elif self.__prev_char == '~':
                     self.__prev_char = None
                     if from_console == '.':
+                        from reach import commands
                         commands.execute_interactive()
                     else:
                         self.__ichan.send('~'+from_console)
