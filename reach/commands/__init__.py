@@ -15,7 +15,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import sys
 import readline
 from reach import term
 
@@ -57,10 +56,7 @@ def execute_interactive():
     readline.set_completer(__readline_completer)
     readline.parse_and_bind('tab: complete')
 
-    rows, cols = term.get_size()
-    print('\n'*rows)
-    term.set_pos(0, 0)
-
+    term.enter_buffer()
     # default raw mode is not readline friendly.
     # restore after saving display, for restoring is destructive
     term.restore_tty()
@@ -68,22 +64,16 @@ def execute_interactive():
     cmd_name = raw_input('REACH:')
 
     cmd_args = [x for x in cmd_name.split(' ') if x != '']
-    if cmd_args[0] in registry:
+    if cmd_args and cmd_args[0] in registry:
         registry[cmd_args[0]][1](cmd_args)
     else:
-        sys.stdout.write('No such command')
-        sys.stdout.write('[RETURN]')
-        os.read(sys.stdin.fileno(), 1)
-    term.restore_cursor()
+        print('No such command')
+        term.pause()
 
     # return to raw_mode
     term.set_raw()
     readline.set_completer(old_completer)
-
-    # FIXME this is the simplest way I found to redraw properly
-    # send ctrl-l (redraw to the shell, assuming a shell is running)
-    from reach import channel
-    channel.Channel.get_instance().get_interactive_chan().send('')
+    term.leave_buffer()
 
 
 def is_ninja():

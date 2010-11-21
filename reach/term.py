@@ -71,6 +71,24 @@ def restore_tty():
     termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, __term_state)
 
 
+def enter_buffer():
+    ''' Enter the alternate vt buffer.
+    If already in alternate buffer (E.G. vim is running) the buffer will be
+    cleared. This function is not reentrant as there is only one aternate
+    buffer.
+    '''
+    sys.stdout.write('\x1b[?47h')
+    sys.stdout.flush()
+
+
+def leave_buffer():
+    ''' Leave the alternate buffer.
+    '''
+    sys.stdout.write('\x1b[?47l')
+    sys.stdout.flush()
+
+
+
 def save_cursor():
     """ save the cursor position.
     """
