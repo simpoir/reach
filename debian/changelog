@@ -1,11 +1,12 @@
-reach (2.0.2~ppa4) lucid; urgency=low
+reach (2.0.2~ppa5) lucid; urgency=low
 
   * fix lag issue.
   * fix paramiko dependency.
   * fix nonblock stdin issue.
   * basic socks4/5 implementation.
+  * stupid x11 forwarding.
 
- -- Simon Poirier <spoirier@cdt204.revolutionlinux.com>  Wed, 17 Nov 2010 10:28:25 -0500
+ -- Simon Poirier <simpoir@gmail.com>  Fri, 19 Nov 2010 16:31:15 -0500
 
 reach (2.0.1-1) lucid; urgency=low
 

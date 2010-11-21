@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import tty
+import os
 import termios
 from fcntl import ioctl
 import struct
@@ -91,5 +92,15 @@ def set_pos(row, column):
     """
     sys.stdout.write('\x1b[%d;%dH' % (row, column))
     sys.stdout.flush()
+
+
+def pause():
+    """ Wait for the terminal to receive a carriage return.
+    """
+    sys.stdout.write('[RETURN]')
+    sys.stdout.flush()
+    c = os.read(sys.stdin.fileno(), 1)
+    while c != '\n':
+        c = os.read(sys.stdin.fileno(), 1)
 
 
