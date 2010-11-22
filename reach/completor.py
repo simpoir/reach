@@ -68,11 +68,10 @@ def init_completors(settings):
     if not len(registry):
         load_completors()
 
-    chain_names = default_chain + settings.get_completor_chain()
+    chain_names = settings.get_completor_chain() or default_chain
 
     chain = []
     for completor_name in chain_names:
         chain.append(registry[completor_name])
-
     return chain
 

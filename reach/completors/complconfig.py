@@ -15,15 +15,37 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from reach import completor
+from reach import settings
 
 class ComplConfig(completor.Completor):
     def fill(self, host, requested):
-        # TODO
-        raise NotImplementedError()
+        config = settings.Settings.get_instance()
+        if config:
+            host_data = config.hosts.get(host['hostname'], None)
+
+            if host_data:
+                hn = host_data.get('hostname', None)
+                if hn:
+                    host['hostname'] = hn
+                un = host_data.get('username', None)
+                if un:
+                    host['username'] = un
+                pw = host_data.get('username', None)
+                if pw:
+                    host['password'] = pw
+                sc = host_data.get('scope', None)
+                # don't overwrite the scope
+                if sc and not host.haskey('scope'):
+                    host['scope'] = sc
+                vi = host_data.get('visibility', None)
+                # don't overwrite the scope
+                if sc:
+                    host['visibility'] = host.get['visibility']+sc.split(',')
+
 
     def lookup(self, scope):
         # TODO
-        raise NotImplementedError()
+        return []
 
 completor.registry['config'] = ComplConfig()
 

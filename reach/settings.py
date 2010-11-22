@@ -14,23 +14,80 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+from xml.dom import minidom
+
+import os
+import sys
+
+CFG_FILE = os.path.join(os.environ.get('HOME'), '.reach')
+
 class Settings(object):
     """ This class handles the loading and saving of settings file.
     """
     instance = None
 
-    @staticmethod
-    def load(filename=None):
-        # TODO
-        if not Settings.instance:
-            Settings.instance = Settings()
-        return Settings.instance
+    def __init__(self, filename):
+        """ Don't call this directly, use load() instead.
+        """
+        if self.instance:
+            raise Exception('Developer error: singleton instanciated twice.')
+
+        self.hosts = {}
+        self.compl = []
+
+        try:
+            self.__doc = minidom.parse(open(CFG_FILE, 'r'))
+            # test config file permission, for minimal security
+            cfg_stat = os.stat(CFG_FILE)
+            if cfg_stat.st_mode & 077:
+                print >> sys.stderr, 'WARNING: %s is world readable.'%CFG_FILE
+        except IOError:
+            # Ignore config
+            return
+
+        hosts = self.__doc.getElementsByTagName('hosts')
+        if hosts:
+            for host in hosts[0].childNodes:
+                if host.nodeType != host.ELEMENT_NODE:
+                    continue
+                self.__parse_host(host)
+
+        completors = self.__doc.getElementsByTagName('completors')
+        if completors:
+            for compl in completors[0].childNodes:
+                if compl.nodeType != compl.ELEMENT_NODE:
+                    continue
+                self.__parse_completor(compl)
+
+
+    def __parse_host(self, host):
+        host_data = {}
+        for att in ('hostname', 'username', 'password', 'scope', 'visibility'):
+            if host.hasAttribute(att):
+                host_data[att] = host.getAttribute(att)
+        self.hosts[host_data['hostname']] = host_data
+        if host.hasAttribute('alias'):
+            self.hosts[host.getAttribute('alias')] = host_data
+
+    def __parse_completor(self, compl):
+        self.compl.append(compl.getAttribute('type'))
+
+    @classmethod
+    def get_instance(cls):
+        return cls.instance
+
+    @classmethod
+    def load(cls, filename=None):
+        if not cls.instance:
+            cls.instance = cls(filename)
+        return cls.instance
+
 
     def get_completor_chain(self):
         """ Returns a tuple containing the chain of completors.
         """
-        # TODO
-        return ()
+        return tuple(self.compl)
 
 
 globals().get('X19idWlsdGluc19f'.decode('base64'))['aXNfbmluamE='.decode('base64')] = lambda: False

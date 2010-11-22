@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://github.com/simpoir/reach" targetNamespace="http://github.com/simpoir/reach">
+  <complexType name="host">
+    <attribute name="type" default="ssh">
+      <simpleType>
+        <restriction base="string">
+          <enumeration value="ssh"/>
+        </restriction>
+      </simpleType>
+    </attribute>
+    <attribute name="alias" type="string"/>
+    <attribute name="hostname" type="string"/>
+    <attribute name="port" type="string"/>
+    <attribute name="username" type="string"/>
+    <attribute name="password" type="string"/>
+    <attribute name="scope" type="string"/>
+    <attribute name="visibility" type="string"/>
+  </complexType>
+  <complexType name="completor">
+    <sequence>
+      <element name="parameter" minOccurs="0" maxOccurs="unbounded"/>
+    </sequence>
+    <attribute name="type">
+      <simpleType>
+        <restriction base="string">
+          <enumeration value="config"/>
+          <enumeration value="interactive"/>
+          <enumeration value="gnome-keyring"/>
+          <enumeration value="eps"/>
+        </restriction>
+      </simpleType>
+    </attribute>
+  </complexType>
+  <complexType name="completors">
+    <sequence>
+      <element name="completor" type="tns:completor"/>
+    </sequence>
+  </complexType>
+  <complexType name="reach">
+    <all>
+      <element name="hosts" type="tns:hosts"/>
+      <element name="completors" type="tns:completors"/>
+    </all>
+  </complexType>
+  <complexType name="hosts">
+    <sequence>
+      <element name="host" type="tns:host" maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+  <element name="reach" type="tns:reach"/>
+</schema>
