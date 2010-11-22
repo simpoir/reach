@@ -30,7 +30,7 @@ class ComplConfig(completor.Completor):
                 un = host_data.get('username', None)
                 if un:
                     host['username'] = un
-                    pw = host_data.get('password', None)
+                pw = host_data.get('password', None)
                 if pw:
                     host['password'] = pw
                 sc = host_data.get('scope', None)
