@@ -15,14 +15,19 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 def _str_to_host(text):
-    username, delim, hostname = text.rpartition('@')
+    username, delim, host_and_parms = text.rpartition('@')
     new_host = dict()
 
     if username:
         new_host['username'] = username
 
-    if hostname:
-        new_host['hostname'] = hostname
+    parms = host_and_parms.split(':')
+    if parms:
+        new_host['hostname'] = parms.pop(0)
+        for keyval in parms:
+            key, delim, val = keyval.partition('=')
+            if key and val:
+                new_host[key] = val
 
     return new_host
 

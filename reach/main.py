@@ -39,7 +39,7 @@ def create_chain(completors, host_chain, visibility):
     # fill current chain, for we need connection info
     for chain_link in host_chain[1:]:
         new_link = dict(chain_link)
-        new_chain.insert(0, new_link)
+        new_chain.append(new_link)
 
     chain_tip = dict(host_chain[0])
     while True:
