@@ -65,7 +65,11 @@ def execute_interactive():
 
     cmd_args = [x for x in cmd_name.split(' ') if x != '']
     if cmd_args and cmd_args[0] in registry:
-        registry[cmd_args[0]][1](cmd_args)
+        try:
+            registry[cmd_args[0]][1](cmd_args)
+        except Exception, e:
+            print(e)
+            term.pause()
     else:
         print('No such command')
         term.pause()

@@ -43,20 +43,24 @@ def setup_socks_cmd(args):
         sys.stdin.readline()
         return
 
-    socks_port = int(args[1])
-    socks_svr = SocksServer(('127.0.0.1', socks_port), SocksHandler)
+    try:
+        socks_port = int(args[1])
+        socks_svr = SocksServer(('127.0.0.1', socks_port), SocksHandler)
 
-    sys.stdout.write('listening on port %d\n'%socks_port)
-    sys.stdout.write('[RETURN]')
-    sys.stdout.flush()
-    sys.stdin.readline()
+        sys.stdout.write('listening on port %d\n'%socks_port)
+        sys.stdout.write('[RETURN]')
+        sys.stdout.flush()
+        sys.stdin.readline()
 
-    # Start a thread with the server -- that thread will then start one
-    # more thread for each request
-    server_thread = threading.Thread(target=socks_svr.serve_forever)
-    # Exit the server thread when the main thread terminates
-    server_thread.setDaemon(True)
-    server_thread.start()
+        # Start a thread with the server -- that thread will then start one
+        # more thread for each request
+        server_thread = threading.Thread(target=socks_svr.serve_forever)
+        # Exit the server thread when the main thread terminates
+        server_thread.setDaemon(True)
+        server_thread.start()
+    finally:
+        socks_port = None
+        socks_svr = None
 
 
 help_line = 'bind a socks proxy to specified port.'
