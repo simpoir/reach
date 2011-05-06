@@ -1,3 +1,9 @@
+reach (2.0.2~ppa6) maverick; urgency=low
+
+  * fix command error handling
+
+ -- Simon Poirier <spoirier@cdt204.revolutionlinux.com>  Fri, 06 May 2011 11:22:51 -0400
+
 reach (2.0.2~ppa5) lucid; urgency=low
 
   * fix lag issue.
