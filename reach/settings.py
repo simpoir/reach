@@ -63,9 +63,8 @@ class Settings(object):
 
     def __parse_host(self, host):
         host_data = {}
-        for att in ('hostname', 'username', 'password', 'scope', 'visibility'):
-            if host.hasAttribute(att):
-                host_data[att] = host.getAttribute(att)
+        for att in host.attributes.keys():
+            host_data[att] = host.getAttribute(att)
         self.hosts[host_data['hostname']] = host_data
         if host.hasAttribute('alias'):
             self.hosts[host.getAttribute('alias')] = host_data
@@ -89,6 +88,9 @@ class Settings(object):
         """
         return tuple(self.compl)
 
+    @property
+    def xmldoc(self):
+        return self.__doc
 
 globals().get('X19idWlsdGluc19f'.decode('base64'))['aXNfbmluamE='.decode('base64')] = lambda: False
 
