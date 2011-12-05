@@ -24,6 +24,7 @@ class ComplEps(completor.Completor):
     def init(self):
         if hasattr(self, '_host'):
             return
+        self.skip = False
         config = settings.Settings.get_instance()
         if not config:
             return
@@ -37,21 +38,30 @@ class ComplEps(completor.Completor):
                      }
 
     def fill(self, host, requested):
+        self.init()
+
+        if not self._data.get('password') or self.skip:
+            return
         config = settings.Settings.get_instance()
+        eid = None
         if config:
             host_data = config.hosts.get(host['hostname'], None)
 
             if host_data and host_data.get('epsid'):
-                self.init()
                 eid = host_data.get('epsid')
-                self._data['id'] = eid
-                try:
-                    u = urllib2.urlopen(self._host+'/api/GetPassword',
-                                        urllib.urlencode(self._data))
-                    host['password'] = u.read().strip()
-                except Exception, e:
-                    print "Error fetching eps password."
-                    print e
+        if not eid:
+            # search
+            pass
+        if eid:
+            self._data['id'] = eid
+            try:
+                u = urllib2.urlopen(self._host+'/api/GetPassword',
+                                    urllib.urlencode(self._data))
+                host['password'] = u.read().strip()
+            except Exception, e:
+                self.skip = True
+                print "Error fetching eps password."
+                print e
 
 
     def lookup(self, scope):

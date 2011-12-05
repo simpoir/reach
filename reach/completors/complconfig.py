@@ -27,6 +27,9 @@ class ComplConfig(completor.Completor):
                 hn = host_data.get('hostname', None)
                 if hn:
                     host['hostname'] = hn
+                pt = host_data.get('port', None)
+                if pt:
+                    host['port'] = pt
                 un = host_data.get('username', None)
                 if un:
                     host['username'] = un
@@ -35,12 +38,12 @@ class ComplConfig(completor.Completor):
                     host['password'] = pw
                 sc = host_data.get('scope', None)
                 # don't overwrite the scope
-                if sc and not host.haskey('scope'):
-                    host['scope'] = sc
+                if sc:
+                    host.setdefault('scope', sc)
                 vi = host_data.get('visibility', None)
                 # don't overwrite the scope
                 if sc:
-                    host['visibility'] = host.get['visibility']+sc.split(',')
+                    host['visibility'] = host.get('visibility', [])+sc.split(',')
 
 
     def lookup(self, scope):

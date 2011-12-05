@@ -61,7 +61,14 @@ def execute_interactive():
     # restore after saving display, for restoring is destructive
     term.restore_tty()
 
-    cmd_name = raw_input('REACH:')
+    try:
+        cmd_name = raw_input('REACH:')
+    except:
+        # return to raw_mode
+        term.set_raw()
+        readline.set_completer(old_completer)
+        term.leave_buffer()
+        return
 
     cmd_args = [x for x in cmd_name.split(' ') if x != '']
     if cmd_args and cmd_args[0] in registry:
