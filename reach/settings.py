@@ -65,6 +65,8 @@ class Settings(object):
         host_data = {}
         for att in host.attributes.keys():
             host_data[att] = host.getAttribute(att)
+        host_data['auto'] = [i.firstChild.data
+                             for i in host.getElementsByTagName('auto')]
         self.hosts[host_data['hostname']] = host_data
         if host.hasAttribute('alias'):
             self.hosts[host.getAttribute('alias')] = host_data

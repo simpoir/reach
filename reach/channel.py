@@ -66,6 +66,15 @@ class Channel(object):
         conn = sshconnector.SshConnector()
         for link in chain:
             conn.connect(link, self)
+        from reach import commands
+        for autocmd in link['auto']:
+            cmd_args = [x for x in autocmd.split(' ') if x != '']
+            if cmd_args and cmd_args[0] in commands.registry:
+                try:
+                    commands.registry[cmd_args[0]][1](cmd_args)
+                except Exception, e:
+                    print(e)
+                    term.pause()
 
 
     def get_interactive_chan(self):

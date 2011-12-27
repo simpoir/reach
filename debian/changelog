@@ -1,3 +1,9 @@
+reach (2.0.3~ppa1) oneiric; urgency=low
+
+  * local port forward
+
+ -- Simon Poirier <spoirier@rlnx.com>  Tue, 27 Dec 2011 11:42:04 -0500
+
 reach (2.0.2~ppa6) maverick; urgency=low
 
   * fix command error handling

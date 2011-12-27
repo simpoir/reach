@@ -44,6 +44,7 @@ class ComplConfig(completor.Completor):
                 # don't overwrite the scope
                 if sc:
                     host['visibility'] = host.get('visibility', [])+sc.split(',')
+                host.setdefault('auto', host_data['auto'])
 
 
     def lookup(self, scope):
