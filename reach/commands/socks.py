@@ -149,8 +149,8 @@ class SocksHandler(BaseRequestHandler):
                 # domain name
                 l = ord(self.request.recv(1))
                 dst_ip = self.request.recv(l)
+                s_ip = struct.pack('!H', l)+dst_ip
                 del l
-                s_ip = dst_ip
             elif s_add == '\x04':
                 # ipv6
                 s_ip = self.request.recv(16)
@@ -179,11 +179,13 @@ class SocksHandler(BaseRequestHandler):
                 r_data = chan.recv(1024)
                 self.request.send(r_data)
                 if not r_data:
+                    self.request.close()
                     return
             elif self.request in readable:
                 r_data = self.request.recv(1024)
                 chan.send(r_data)
                 if not r_data:
+                    chan.close()
                     return
 
 

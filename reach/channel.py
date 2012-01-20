@@ -67,7 +67,7 @@ class Channel(object):
         for link in chain:
             conn.connect(link, self)
         from reach import commands
-        for autocmd in link['auto']:
+        for autocmd in link.get('auto', []):
             cmd_args = [x for x in autocmd.split(' ') if x != '']
             if cmd_args and cmd_args[0] in commands.registry:
                 try:
