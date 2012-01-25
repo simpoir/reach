@@ -33,14 +33,13 @@ class ComplEps(completor.Completor):
                 or raw_input('eps url:')
         self._data = {'username':info and info[0].getAttribute('username') \
                       or raw_input('eps user:'),
-                      'password':info and info[0].getAttribute('password') \
-                      or getpass('eps password:'),
+                      'password':info and info[0].getAttribute('password'),
                      }
 
     def fill(self, host, requested):
         self.init()
 
-        if not self._data.get('password') or self.skip:
+        if self.skip:
             return
         config = settings.Settings.get_instance()
         eid = None
@@ -53,6 +52,8 @@ class ComplEps(completor.Completor):
             # search
             pass
         if eid:
+            if not self._data['password']:
+                self._data['password'] = getpass('EPS Password:')
             self._data['id'] = eid
             try:
                 u = urllib2.urlopen(self._host+'/api/GetPassword',
