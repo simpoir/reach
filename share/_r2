@@ -28,7 +28,7 @@
 IFS_orig=$IFS
 
 typeset -g _r2_aliases
-_r2_aliases=($(grep alias ~/.reach | sed 's/alias=['\''"]\(.\+\)['\''"]/\1/p'))
+_r2_aliases=($(xmllint --xpath "//host[not(@scope)]/@alias" ~/.reach | sed 's|[^"'\'']\+="\([^"'\'']\+\)"|\1 |g'))
 IFS=$IFS_orig
 
 
@@ -38,9 +38,17 @@ _r2() {
     return 0
 }
 
+
 (( $+functions[_task_commands] )) ||
 _r2_hosts() {
     local cmd ret=1
-    _describe -t commands 'reach alias' _r2_aliases
+    if (( CURRENT == 1 )); then
+        _describe -t commands 'reach alias' _r2_aliases
+    else
+        prevhost="${words[$CURRENT-1]}"
+        scope=`xmllint --xpath "//host[@alias='${prevhost}']/@visibility" ~/.reach 2>/dev/null | cut -d\" -f 2`
+        scoped_aliases=(`xmllint --xpath "//host[@scope='${scope}']/@alias" ~/.reach 2>/dev/null |sed 's|[^"'\'']\+="\([^"'\'']\+\)"|\1 |g'`)
+        _describe -t commands "reach scoped alias scoped(${scope})" scoped_aliases
+    fi
 }
 
